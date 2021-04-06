@@ -11,47 +11,15 @@ class Faces extends React.Component {
     super(props);
     this.dimensions = React.createRef()
     this.state = {
-        object : [],
-        x1:[],
-        y1: [],
-        x2:[],
-        y2: [],
-        x3:[],
-        y3: [],
-        x4:[],
-        y4: [],
-        objectx: [],
-        objecty: [],
-        x1Perc: [],
-        y1Perc: [],
-        x2Perc: [],
-        y2Perc: [],
-        x3Perc: [],
-        y3Perc: [],
-        x4Perc: [],
-        y4Perc: [],
-        logo: [],
         angerLikelihood: [],
         blurredLikelihood: [],
         headwearLikelihood: [],
         joyLikelihood: [],
         sorrowLikelihood: [],
         surpriseLikelihood: [],
-
     };
     }
 
-    handleDownload = e => {
-        this.setState({
-            downloadvalue : e.target.value
-        });
-    }
-
-    handleView = f => {
-        this.setState({
-            viewvalue : f.target.value
-        });
-    }
 
     convertBase64 = (file) => {
         return new Promise((resolve, reject) =>{
@@ -83,14 +51,6 @@ class Faces extends React.Component {
 
         vision.annotate(req)
         .then((res) => {
-            var object = res.responses[0].faceAnnotations[0].boundingPoly.vertices;
-            var x1object = object[0].x;
-            var y1object = object[1].y;
-            var x2object = object[1].x;
-            var y2object = object[2].y;
-            var objectx = (x2object - x1object)
-            var objecty = (y2object - y1object )
-
             var angerLikelihood = res.responses[0].faceAnnotations[0].angerLikelihood
             var blurredLikelihood = res.responses[0].faceAnnotations[0].blurredLikelihood
             var headwearLikelihood = res.responses[0].faceAnnotations[0].headwearLikelihood
@@ -98,24 +58,18 @@ class Faces extends React.Component {
             var sorrowLikelihood  = res.responses[0].faceAnnotations[0].sorrowLikelihood
             var surpriseLikelihood = res.responses[0].faceAnnotations[0].surpriseLikelihood
 
-            const width =  objectx;
-            const height =  objecty;
-
-            const logo = <div style={{ borderStyle:"solid",  borderColor:"yellow", zIndex:10, height: height, width:width, position:"absolute", left: x1object, top:y1object}}></div>;
-
             this.setState({
-                logo : logo,
-                objecty : objecty,
-                angerLikelihood: angerLikelihood,
-                blurredLikelihood: blurredLikelihood,
-                headwearLikelihood: headwearLikelihood,
-                joyLikelihood: joyLikelihood,
-                sorrowLikelihood: sorrowLikelihood,
-                surpriseLikelihood: surpriseLikelihood,
+                angerLikelihood:  this.getFaces(angerLikelihood),
+                blurredLikelihood:  this.getFaces(blurredLikelihood),
+                headwearLikelihood: this.getFaces(headwearLikelihood),
+                joyLikelihood: this.getFaces(joyLikelihood),
+                sorrowLikelihood: this.getFaces(sorrowLikelihood),
+                surpriseLikelihood:  this.getFaces(surpriseLikelihood),
                 })
 
             this.gridDot();
             this.setDistance();
+
 
         }, (e) => {
         alert("foutje")
@@ -135,6 +89,21 @@ class Faces extends React.Component {
         })
     }
 
+
+    getFaces = (x) => {
+        if (x === "VERY_LIKELY") {
+                x = "100%";
+        }else if (x === "LIKELY") {
+            x = "75%"
+        } else if (x === "POSSIBLE"){
+            x = "50%"
+        } else if (x === "UNLIKELY") {
+            x = "25%"
+        }else if (x === "VERY_UNLIKELY") {
+            x = "0%"
+        }
+        return x;
+    }
 
 
 render() {
